@@ -1,0 +1,82 @@
+
+//PHP CODE
+
+<?php
+    include 'config.php';
+    
+    //connect to db
+      $oLink = mysql_pconnect($host, $user, $pswd) or die("Can't connect to MySQL server!");
+    mysql_select_db($db) or die("Can't select database!");
+    
+    // Get parameters
+    $mlat = $_POST["lat"];
+    $mlng = $_POST["lng"];
+    $radius = $_POST["radius"];
+    
+    // Search the rows in the markers table
+    //change 3959 to 6371 for distance in KM
+    $sql = sprintf("SELECT address, name, lat, lng, ( 3959 * acos( cos( radians('%s') ) * cos( radians( lat ) ) * cos( radians( lng ) - radians('%s') ) + sin( radians('%s') ) * sin( radians( lat ) ) ) ) AS distance FROM stores HAVING distance < '%s' ORDER BY distance LIMIT 0 , 20",
+      mysql_real_escape_string($mlat),
+      mysql_real_escape_string($mlng),
+      mysql_real_escape_string($mlat),
+      mysql_real_escape_string($radius));
+
+
+    $result = mysql_query($sql);
+    $rows = array();
+    while($r = mysql_fetch_assoc($result)) {
+        $rows[] = $r;
+    }
+    mysql_close($oLink);
+        
+    echo json_encode($rows);
+?>
+
+
+
+//C#
+
+using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Web;
+using System.Web.Mvc;
+using System.Reflection;
+using runnerDotNet;
+namespace runnerDotNet
+{
+	public partial class GlobalController : BaseController
+	{
+		public XVar code()
+		{
+			try
+			{
+				dynamic db = null, host = null, mlat = null, mlng = null, oLink = null, pswd = null, r = null, radius = null, result = null, rows = XVar.Array(), sql = null, user = null;
+				MVCFunctions.Echo(new XVar("Can't connect to MySQL server!"));
+				return MVCFunctions.GetBuferContentAndClearBufer();
+				(XVar)(oLink = XVar.Clone(CommonFunctions.mysql_pconnect((XVar)(host), (XVar)(user), (XVar)(pswd))))  || (XVar)(true);
+				MVCFunctions.Echo(new XVar("Can't select database!"));
+				return MVCFunctions.GetBuferContentAndClearBufer();
+				(XVar)(CommonFunctions.mysql_select_db((XVar)(db)))  || (XVar)(true);
+				mlat = XVar.Clone(MVCFunctions.postvalue("lat"));
+				mlng = XVar.Clone(MVCFunctions.postvalue("lng"));
+				radius = XVar.Clone(MVCFunctions.postvalue("radius"));
+				sql = XVar.Clone(CommonFunctions.sprintf(new XVar("SELECT address, name, lat, lng, ( 3959 * acos( cos( radians('%s') ) * cos( radians( lat ) ) * cos( radians( lng ) - radians('%s') ) + sin( radians('%s') ) * sin( radians( lat ) ) ) ) AS distance FROM stores HAVING distance < '%s' ORDER BY distance LIMIT 0 , 20"), (XVar)(CommonFunctions.mysql_real_escape_string((XVar)(mlat))), (XVar)(CommonFunctions.mysql_real_escape_string((XVar)(mlng))), (XVar)(CommonFunctions.mysql_real_escape_string((XVar)(mlat))), (XVar)(CommonFunctions.mysql_real_escape_string((XVar)(radius)))));
+				result = XVar.Clone(CommonFunctions.mysql_query((XVar)(sql)));
+				rows = XVar.Clone(XVar.Array());
+				while(XVar.Pack(r = XVar.Clone(CommonFunctions.mysql_fetch_assoc((XVar)(result)))))
+				{
+					rows.InitAndSetArrayItem(r, null);
+				}
+				CommonFunctions.mysql_close((XVar)(oLink));
+				MVCFunctions.Echo(CommonFunctions.json_encode((XVar)(rows)));
+				MVCFunctions.Echo("\r\n\r\n\r\nRe: code converter from php to");
+				return MVCFunctions.GetBuferContentAndClearBufer();
+			}
+			catch(RunnerRedirectException ex)
+			{ return Redirect(ex.Message); }
+		}
+	}
+}
